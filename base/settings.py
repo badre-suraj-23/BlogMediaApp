@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-yz)(vno^&9kul$w3(o%odoz2ekjcx*+@!_l$gu)61ha89h31m8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['blogmediaapp.onrender.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -163,3 +164,6 @@ API_BASE_URL = config('API_BASE_URL')
 
 
 
+from decouple import config
+
+SECRET_KEY = config('SECRET_KEY')
