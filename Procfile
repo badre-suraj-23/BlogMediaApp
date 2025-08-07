@@ -1,1 +1,1 @@
-web: gunicorn photoapp.wsgi:application --bind 0.0.0.0:$PORT
+web: gunicorn base.wsgi:application --bind 0.0.0.0:$PORT
