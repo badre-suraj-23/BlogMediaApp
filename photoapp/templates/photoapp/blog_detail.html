@@ -1,0 +1,60 @@
+{% extends 'photoapp/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-2" style="font-family: 'Georgia', serif;">{{ blog.blog_title }}</h2>
+  <p class="text-muted" style="font-size: 0.9rem;">
+    By <strong>{{ blog.user.username }}</strong> | {{ blog.state }} | {{ blog.created_at|date:"d M Y" }}
+  </p>
+
+  {% if blog.blog_image %}
+    <img src="{{ blog.blog_image.url }}" alt="Blog Image"
+         class="img-fluid mb-4" style="border-radius: 5px; max-height: 400px; object-fit: contain;">
+  {% endif %}
+
+  <div style="
+    font-family: 'Merriweather', 'Georgia', serif;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #333;
+    letter-spacing: 0.2px;
+    font-smooth: always;
+    -webkit-font-smoothing: antialiased;
+    text-align: justify;
+  ">
+    {{ blog.blog_content }}
+  </div>
+
+  <!-- Likes and Views -->
+  <div class="mt-4">
+    <form action="{% url 'photoapp:like_blog' blog.pk %}" method="post" style="display: inline;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-outline-danger position-relative">
+        <span class="like-icon">
+          {% if user in blog.likes.all %}
+            ❤️
+          {% else %}
+            🤍
+          {% endif %}
+        </span> {{ blog.total_likes }}
+      </button>
+    </form>
+    <span class="ms-3"><strong>Views:</strong> {{ blog.view_count }}</span>
+  </div>
+
+  <!-- Back Button -->
+  <a href="{% url 'photoapp:home' %}" class="btn btn-primary mt-4 rounded-pill px-4">
+    ← Back to Home
+  </a>
+</div>
+
+<!-- Optional: Heart hover effect -->
+<style>
+  .btn-outline-danger .like-icon {
+    transition: transform 0.2s ease;
+  }
+  .btn-outline-danger:hover .like-icon {
+    transform: scale(1.3);
+  }
+</style>
+{% endblock %}

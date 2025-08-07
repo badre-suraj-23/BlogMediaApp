@@ -1,0 +1,25 @@
+{% extends 'photoapp/base.html' %}
+{% block title %}Upload Video{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4 animate__animated animate__fadeInDown ">Upload New Video</h2>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-6" data-aos="fade-up">
+            <form method="POST" enctype="multipart/form-data" class="p-4 shadow-sm" style="
+                background: linear-gradient(135deg, #e9ecef, #dee2e6);
+                border-radius: 15px;
+                border: 1px solid #ced4da;
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            ">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="d-grid mt-3">
+                    <button type="submit" class="btn btn-success btn-block">Upload Video</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

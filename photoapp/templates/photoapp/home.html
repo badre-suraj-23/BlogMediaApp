@@ -1,0 +1,27 @@
+{% extends 'photoapp/base.html' %}
+
+{% block content %}
+<h2 class="mt-5 px-2 text-center">Latest Blog Posts</h2>
+
+{% for blog in blogs %}
+  <div class="border p-4 mb-4 rounded shadow">
+    <h3 class="text-xl font-semibold">{{ blog.blog_title }}</h3>
+    <p>By: {{ blog.user.username }} | {{ blog.state }} | {{ blog.created_at|date:"d M Y" }}</p>
+    
+    {% if blog.blog_image %}
+      <img src="{{ blog.blog_image.url }}" alt="Blog image" class="w-full h-auto mt-2 mb-2" style="max-height: 300px;">
+    {% endif %}
+
+    <p>{{ blog.blog_content|truncatechars:200 }}</p>
+
+    <p class="mt-2">
+      <strong>Likes:</strong> {{ blog.total_likes }} |
+      <strong>Views:</strong> {{ blog.view_count }}
+    </p>
+
+    <a href="{% url 'photoapp:view_blog' blog.pk %}" class="text-blue-600">Read More</a>
+  </div>
+{% empty %}
+  <p>No blogs posted yet.</p>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends 'photoapp/base.html' %}
+{% block title %}Image Gallery{% endblock %}
+
+{% block content %}
+<style>
+  .zoom-container {
+    overflow: hidden;
+    cursor: zoom-in;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+  }
+
+  .zoom-container img {
+    transition: transform 0.3s ease;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+  }
+
+  .zoom-container:hover img {
+    transform: scale(1.2);
+  }
+
+  @media (max-width: 576px) {
+    .zoom-container:hover img {
+      transform: scale(1.05);
+    }
+  }
+
+  .card {
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .btn-save {
+    background-color: #324536;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 0.8rem;
+  }
+</style>
+
+<div class="container mt-5">
+  <h2 class="text-center mb-4 animate__animated animate__fadeInDown">Image Gallery</h2>
+
+  {% if page_obj %}
+    <div class="row">
+      {% for image in page_obj %}
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4" data-aos="zoom-in">
+          <div class="card h-100 shadow-sm">
+            <div class="zoom-container">
+              <img src="{{ image.image.url }}" class="card-img-top" alt="{{ image.title }}">
+            </div>
+            <div class="card-body text-center">
+              <h5 class="card-title">{{ image.title }}</h5>
+              <p class="text-muted" style="font-size: 0.9em;">
+                Uploaded: {{ image.uploaded_at|date:"M d, Y" }}
+              </p>
+              <div class="d-flex justify-content-center gap-2 mt-2 flex-wrap">
+                <a href="{% url 'photoapp:image-update' image.id %}" class="btn btn-sm btn-warning">Edit</a>
+                <a href="{% url 'photoapp:image-delete' image.id %}" class="btn btn-sm btn-danger">Delete</a>
+                <a href="{{ image.image.url }}" download class="btn btn-sm btn-save">Save</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="d-flex justify-content-center mt-4">
+      <ul class="pagination">
+        {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+          </li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+          <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+          </li>
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  {% else %}
+    <div class="alert alert-info text-center" data-aos="fade-in">
+      No images uploaded yet.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

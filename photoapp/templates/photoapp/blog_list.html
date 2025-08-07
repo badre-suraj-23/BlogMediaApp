@@ -1,0 +1,64 @@
+{% extends 'photoapp/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4 fw-bold text-center text-bg-black">📝 All Blog Posts</h2>
+
+    {% if page_obj %}
+        <div class="row">
+            {% for blog in page_obj %}
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm border-0 h-100" style="background: rgba(255, 255, 255, 1); border-radius: 10px;">
+                        {% if blog.image %}
+                            <img src="{{ blog.image.url }}" class="card-img-top" alt="{{ blog.title }}"
+                                 style="border-top-left-radius: 10px; border-top-right-radius: 10px; max-height: 200px; object-fit: cover;">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title text-primary fw-semibold">{{ blog.title }}</h5>
+                            <p class="card-text text-muted small">{{ blog.content|truncatewords:20 }}</p>
+                            <p class="text-secondary small mb-2">
+                                <i class="bi bi-person"></i> {{ blog.user.username }} &nbsp; | &nbsp;
+                                <i class="bi bi-calendar-event"></i> {{ blog.created_at|date:"d M, Y" }}
+                            </p>
+
+                            {% if blog.user == request.user %}
+                                <a href="{% url 'photoapp:edit_blog' blog.pk %}" class="btn btn-outline-primary btn-sm me-2">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </a>
+                                <a href="{% url 'photoapp:delete_blog' blog.pk %}" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash"></i> Delete
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-center align-items-center mt-4">
+            <nav>
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                        </li>
+                    {% endif %}
+
+                    <li class="page-item disabled">
+                        <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    {% else %}
+        <p class="text-center text-muted">No blog posts found.</p>
+    {% endif %}
+</div>
+{% endblock %}
