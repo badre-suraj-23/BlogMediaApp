@@ -22,9 +22,8 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     # path('', include('photoapp.urls')),
-     path('', include(('photoapp.urls', 'photoapp'), namespace='photoapp')),
+    path('', include(('photoapp.urls', 'photoapp'), namespace='photoapp')),
     path('api/auth/',include('auth_jwt.urls')),
 ]
-if settings.DEBUG:  # 👈 Yeh hona chahiye!
+if settings.DEBUG:  
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-# urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
