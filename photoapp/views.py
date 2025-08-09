@@ -182,59 +182,36 @@ def like_blog(request, pk):
 
     return HttpResponseRedirect(reverse('photoapp:view_blog', args=[pk]))
 
-# Login Register Api Integration
-# from decouple import config
-# API_BASE_URL = config('API_BASE_URL')  # from .env
-
-# def login_view(request):
-#     if request.method == 'POST':
-#         username = request.POST.get('username')
-#         password = request.POST.get('password')
-#         headers = {'Content-Type': 'application/json'}
-
-#         response = requests.post(
-#             f'{API_BASE_URL}/login/',
-#             data=json.dumps({'username': username, 'password': password}),
-#             headers=headers
-#         )
-
-#         if response.status_code == 200:
-#             try:
-#                 tokens = response.json()
-#                 request.session['access'] = tokens.get('access')
-#                 request.session['refresh'] = tokens.get('refresh')
-#                 messages.success(request, '🎉 Login successful!')
-#                 return redirect('photoapp:home')
-#             except ValueError:
-#                 return render(request, 'photoapp/login.html', {'error': 'Invalid JSON response from server.'})
-#         else:
-#             try:
-#                 error_msg = response.json().get('detail') or 'Invalid credentials'
-#             except ValueError:
-#                 error_msg = 'Login failed. Server returned invalid response.'
-#             return render(request, 'photoapp/login.html', {'error': error_msg})
-
-#     return render(request, 'photoapp/login.html')
 import requests
 import json
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from decouple import config
 
+# Load API base URL from .env
 API_BASE_URL = config('API_BASE_URL')
+
 
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
+
+        if not username or not password:
+            return render(request, 'photoapp/login.html', {'error': 'Username and password are required.'})
+
         headers = {'Content-Type': 'application/json'}
 
-        response = requests.post(
-            f'{API_BASE_URL}/login/',
-            data=json.dumps({'username': username, 'password': password}),
-            headers=headers
-        )
-        print(response.status_code, response.text)  # Debug print
+        try:
+            response = requests.post(
+                f'{API_BASE_URL}/login/',
+                data=json.dumps({'username': username, 'password': password}),
+                headers=headers
+            )
+        except requests.RequestException as e:
+            return render(request, 'photoapp/login.html', {'error': f'⚠ Server not reachable: {e}'})
+
+        print("DEBUG LOGIN:", response.status_code, response.text)  # Debugging
 
         if response.status_code == 200:
             try:
@@ -244,12 +221,12 @@ def login_view(request):
                 messages.success(request, '🎉 Login successful!')
                 return redirect('photoapp:home')
             except ValueError:
-                return render(request, 'photoapp/login.html', {'error': 'Invalid JSON response from server.'})
+                return render(request, 'photoapp/login.html', {'error': 'Invalid JSON from server.'})
         else:
             try:
                 error_msg = response.json().get('detail') or 'Invalid credentials'
             except ValueError:
-                error_msg = 'Login failed. Server returned invalid response.'
+                error_msg = 'Login failed. Invalid server response.'
             return render(request, 'photoapp/login.html', {'error': error_msg})
 
     return render(request, 'photoapp/login.html')
@@ -259,12 +236,22 @@ def register_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
+
+        if not username or not password:
+            return render(request, 'photoapp/register.html', {'error': 'Username and password are required.'})
+
         headers = {'Content-Type': 'application/json'}
-        response = requests.post(
-            f'{API_BASE_URL}/register/',
-            data=json.dumps({'username': username, 'password': password}),
-            headers=headers
-        )
+
+        try:
+            response = requests.post(
+                f'{API_BASE_URL}/register/',
+                data=json.dumps({'username': username, 'password': password}),
+                headers=headers
+            )
+        except requests.RequestException as e:
+            return render(request, 'photoapp/register.html', {'error': f'⚠ Server not reachable: {e}'})
+
+        print("DEBUG REGISTER:", response.status_code, response.text)  # Debugging
 
         if response.status_code == 201:
             messages.success(request, '✅ Account created successfully! Please log in.')
@@ -274,17 +261,26 @@ def register_view(request):
                 data = response.json()
                 error_msg = data.get('error') or data.get('detail') or '❌ Registration failed.'
             except ValueError:
-                error_msg = '❌ Server returned an invalid response.'
+                error_msg = '❌ Invalid server response.'
             return render(request, 'photoapp/register.html', {'error': error_msg})
 
     return render(request, 'photoapp/register.html')
 
 
-
 def logout_view(request):
     refresh = request.session.get('refresh')
+    headers = {'Content-Type': 'application/json'}
+
     if refresh:
-        headers = {'Content-Type': 'application/json'}
-        requests.post(f'{API_BASE_URL}/logout/', data=json.dumps({'refresh': refresh}), headers=headers)
+        try:
+            requests.post(
+                f'{API_BASE_URL}/logout/',
+                data=json.dumps({'refresh': refresh}),
+                headers=headers
+            )
+        except requests.RequestException:
+            pass  # Ignore errors during logout
+
     request.session.flush()
+    messages.success(request, '👋 Logged out successfully.')
     return redirect('photoapp:login')

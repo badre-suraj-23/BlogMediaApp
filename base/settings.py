@@ -17,8 +17,8 @@ load_dotenv()
 # SECURITY
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = False
-ALLOWED_HOSTS = ['blogmedia.onrender.com']
-# ALLOWED_HOSTS = ['blogmedia.onrender.com', 'localhost', '127.0.0.1']
+# ALLOWED_HOSTS = ['blogmedia.onrender.com']
+ALLOWED_HOSTS = ['blogmedia.onrender.com', 'localhost', '127.0.0.1']
 
 # Applications
 INSTALLED_APPS = [
