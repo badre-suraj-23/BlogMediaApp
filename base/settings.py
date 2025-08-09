@@ -55,6 +55,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'photoapp.middleware.LoginRequiredMiddleware',
 ]
+from django.utils.deprecation import MiddlewareMixin
 
 ROOT_URLCONF = 'base.urls'
 
