@@ -8,16 +8,19 @@ import os
 from dotenv import load_dotenv
 import dj_database_url
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings
+# Load env variables
+load_dotenv()
+
+# SECURITY
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = ['blogmedia.onrender.com', 'localhost', '127.0.0.1']
 
-# Application definition
+# Applications
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -26,32 +29,26 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'photoapp',
     'rest_framework_simplejwt.token_blacklist',
+    'corsheaders',
+    'photoapp',
     'auth_jwt',
-    'corsheaders',  # ✅ Added CORS headers
 ]
 
+# REST Framework & JWT
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
 
-# Load environment variables
-load_dotenv()
-API_BASE_URL = os.getenv("API_BASE_URL")
-LOGIN_URL = '/login/'
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
-# Middleware
+# Middleware order important for corsheaders
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # ✅ whitenoise for static files
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  # ✅ Added CORS middleware
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Must be above CommonMiddleware
     'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -59,20 +56,13 @@ MIDDLEWARE = [
     'photoapp.middleware.LoginRequiredMiddleware',
 ]
 
-# ✅ CORS settings
-CORS_ALLOWED_ORIGINS = [
-    "https://blogmedia.onrender.com",  # अगर frontend यही है
-    "http://localhost:3000",           # React/Local dev
-    "http://127.0.0.1:8000",
-]
-CORS_ALLOW_CREDENTIALS = True
-
 ROOT_URLCONF = 'base.urls'
 
+# Templates
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [],  # Add template dirs if needed
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -86,10 +76,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'base.wsgi.application'
 
-# Database
+# Database with ssl
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgres://blogmedia_db_user:gUZfItpjR8hj6gRIBRqU1fDECQip3rGD@dpg-d2ag2lngi27c73f9kocg-a.oregon-postgres.render.com/blogmedia_db',
+        default=config('DATABASE_URL'),
         conn_max_age=600,
         ssl_require=True
     )
@@ -109,34 +99,42 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files
+# Static files with whitenoise
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Default primary key
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-# settings.py
-
-# ✅ Cookies सिर्फ HTTPS पर जाएं (Render पर HTTPS होता है)
+# Session and CSRF cookies settings for HTTPS (Render)
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
-# ✅ Cross-site cookie allow करने के लिए
 SESSION_COOKIE_SAMESITE = 'None'
 CSRF_COOKIE_SAMESITE = 'None'
 
-# ✅ अगर frontend अलग domain है
+# CORS settings
+CORS_ALLOWED_ORIGINS = [
+    "https://blogmedia.onrender.com",
+    "http://localhost:3000",
+    "http://127.0.0.1:8000",
+]
+
 CORS_ALLOW_CREDENTIALS = True
 
-# ✅ Render domain allow करो
-CORS_ALLOWED_ORIGINS = [
-    "https://tumhara-frontend-domain.com",
+# CSRF trusted origins
+CSRF_TRUSTED_ORIGINS = [
     "https://blogmedia.onrender.com",
+    "http://localhost:3000",  # Add your frontend domain here if any
 ]
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://tumhara-frontend-domain.com",
-    "https://blogmedia.onrender.com",
-]
+# Login URL for middleware redirect
+LOGIN_URL = '/login/'
+
+# API base URL from env (used in your views)
+API_BASE_URL = config('API_BASE_URL')
