@@ -1,91 +1,4 @@
-# # import jwt
-# # from django .shortcuts import  redirect
-# # from django.conf import settings
-# # from django.contrib.auth.models import User
-# # from rest_framework_simplejwt.tokens import AccessToken
-
-# # EXEMPT_URLS = [
-# #     '/login/',
-# #     '/register/',
-# #     '/admin/',
-# #     '/static/',
-# #     '/media/',
-# #     '/api/auth/login/',
-# #     '/api/auth/register/',
-# #     '/api/auth/logout/',
-# #     '/api/auth/refresh/',
-# # ]
-
-# # class LoginRequiredMiddleware:
-# #     def __init__(self, get_response):
-# #         self.get_response = get_response
-
-# #     def __call__(self, request):
-# #         path = request.path_info
-
-# #         access_token = request.session.get('access')
-
-# #         if access_token:
-# #             try:
-# #                 token = AccessToken(access_token)
-# #                 user_id = token['user_id']
-# #                 user = User.objects.get(id=user_id)
-# #                 request.user = user  # ✅ Django को user set करना जरूरी है
-# #             except Exception as e:
-# #                 request.user = None
-
-# #         if not request.user or not request.user.is_authenticated:
-# #             if not any(path.startswith(url) for url in EXEMPT_URLS):
-# #                 return redirect(f"{settings.LOGIN_URL}?next={request.path}")
-
-# #         return self.get_response(request)
-
-
-# # photoapp/middleware.py
-
-# from django.shortcuts import redirect
-# from django.conf import settings
-# from django.contrib.auth.models import User, AnonymousUser
-# from rest_framework_simplejwt.tokens import AccessToken
-
-# EXEMPT_URLS = [
-#     '/login/',
-#     '/register/',
-#     '/admin/',
-#     '/static/',
-#     '/media/',
-#     '/api/auth/login/',
-#     '/api/auth/register/',
-#     '/api/auth/logout/',
-#     '/api/auth/refresh/',
-# ]
-
-# class LoginRequiredMiddleware:
-#     def __init__(self, get_response):
-#         self.get_response = get_response
-
-#     def __call__(self, request):
-#         path = request.path_info
-#         access_token = request.session.get('access')
-
-#         if access_token:
-#             try:
-#                 token = AccessToken(access_token)
-#                 user_id = token['user_id']
-#                 user = User.objects.get(id=user_id)
-#                 request.user = user
-#             except Exception as e:
-#                 request.user = AnonymousUser()  # ✅ instead of None
-#         else:
-#             request.user = AnonymousUser()  # ✅ instead of None
-
-#         if not request.user.is_authenticated:
-#             if not any(path.startswith(url) for url in EXEMPT_URLS):
-#                 return redirect(f"{settings.LOGIN_URL}?next={request.path}")
-
-#         return self.get_response(request)
-
-# middlewares.py (photoapp ke andar)
+# photoapp/middleware.py
 
 from django.shortcuts import redirect
 from django.conf import settings
@@ -94,7 +7,6 @@ from django.contrib.auth.models import User, AnonymousUser
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.exceptions import TokenError
 
-# जिन URLs पर login check नहीं करना है
 EXEMPT_URLS = [
     '/login/',
     '/register/',
@@ -114,12 +26,18 @@ class LoginRequiredMiddleware:
     def __call__(self, request):
         path = request.path_info
 
-        # DEBUG: Render logs me print hoga
         print(f"[Middleware] Request Path: {path}")
 
+        # 1️⃣ Try session token first
         access_token = request.session.get('access')
 
-        # Token से user निकालना
+        # 2️⃣ Fallback: Try Authorization header
+        if not access_token:
+            auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+            if auth_header.startswith('Bearer '):
+                access_token = auth_header.split(' ')[1]
+
+        # 3️⃣ Decode JWT token if available
         if access_token:
             try:
                 token = AccessToken(access_token)
@@ -137,16 +55,14 @@ class LoginRequiredMiddleware:
                 print(f"[Middleware] Unknown error: {e}")
                 request.user = AnonymousUser()
         else:
-            print("[Middleware] No access token in session")
+            print("[Middleware] No access token found")
             request.user = AnonymousUser()
 
-        # अगर user authenticated नहीं है
+        # 4️⃣ Handle unauthenticated users
         if not request.user.is_authenticated:
-            # ✅ API calls को कभी redirect मत करो, JSON error दो
             if path.startswith('/api/'):
                 return JsonResponse({'detail': 'Authentication credentials were not provided.'}, status=401)
 
-            # ✅ बाकी pages पर login check
             if not any(path.startswith(url) for url in EXEMPT_URLS):
                 print(f"[Middleware] Redirecting to login for path: {path}")
                 return redirect(f"{settings.LOGIN_URL}?next={request.path}")
