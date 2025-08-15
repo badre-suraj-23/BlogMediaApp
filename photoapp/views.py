@@ -202,22 +202,31 @@ def login_view(request):
 
         headers = {'Content-Type': 'application/json'}
 
+        login_url = f'{API_BASE_URL}/login/'  # ✅ API endpoint
+
+        print("DEBUG LOGIN: Trying URL:", login_url)  # Debug URL being called
+
         try:
             response = requests.post(
-                f'{API_BASE_URL}/login/',
+                login_url,
                 data=json.dumps({'username': username, 'password': password}),
                 headers=headers
             )
         except requests.RequestException as e:
             return render(request, 'photoapp/login.html', {'error': f'⚠ Server not reachable: {e}'})
 
-        print("DEBUG LOGIN:", response.status_code, response.text)  # Debugging
+        # Debug server response
+        print("DEBUG LOGIN: Status Code:", response.status_code)
+        print("DEBUG LOGIN: Content-Type:", response.headers.get("Content-Type", "N/A"))
+        print("DEBUG LOGIN: Raw Response (first 300 chars):", response.text[:300])
 
         if response.status_code == 200:
             try:
                 tokens = response.json()
+                print("DEBUG LOGIN: Tokens received:", tokens)  # Debug tokens
                 request.session['access'] = tokens.get('access')
                 request.session['refresh'] = tokens.get('refresh')
+                
                 messages.success(request, '🎉 Login successful!')
                 return redirect('photoapp:home')
             except ValueError:
@@ -230,7 +239,6 @@ def login_view(request):
             return render(request, 'photoapp/login.html', {'error': error_msg})
 
     return render(request, 'photoapp/login.html')
-
 
 def register_view(request):
     if request.method == 'POST':
