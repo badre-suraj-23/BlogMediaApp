@@ -15,15 +15,20 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path,include
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path('', include('photoapp.urls')),
+
+    # Frontend routes (photoapp templates)
     path('', include(('photoapp.urls', 'photoapp'), namespace='photoapp')),
-    path('api/auth/',include('auth_jwt.urls')),
+
+    # JWT Authentication API routes
+    path('api/auth/', include(('auth_jwt.urls', 'auth_jwt'), namespace='auth_jwt')),
 ]
-if settings.DEBUG:  
+
+# Serving media files during development
+if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
