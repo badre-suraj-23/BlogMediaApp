@@ -60,9 +60,15 @@
             </div>
             <div class="card-body text-center">
               <h5 class="card-title">{{ image.title }}</h5>
-              <p class="text-muted" style="font-size: 0.9em;">
-                Uploaded: {{ image.uploaded_at|date:"M d, Y" }}
+
+              <!-- User info and uploaded date -->
+              <p class="text-muted mb-1" style="font-size: 0.85em;">
+                Uploaded by: <strong>{{ image.user.username }}</strong>
               </p>
+              <p class="text-muted" style="font-size: 0.8em;">
+                On: {{ image.uploaded_at|date:"M d, Y H:i" }}
+              </p>
+
               <div class="d-flex justify-content-center gap-2 mt-2 flex-wrap">
                 <a href="{% url 'photoapp:image-update' image.id %}" class="btn btn-sm btn-warning">Edit</a>
                 <a href="{% url 'photoapp:image-delete' image.id %}" class="btn btn-sm btn-danger">Delete</a>

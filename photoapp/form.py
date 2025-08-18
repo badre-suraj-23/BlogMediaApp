@@ -4,7 +4,7 @@ from .models import ChildImage, ChildVideo,BlogPost
 class ChildImageForm(forms.ModelForm):
     class Meta:
         model = ChildImage
-        fields = ['title', 'image']
+        exclude = ['user', 'uploaded_at']  
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -18,7 +18,7 @@ class ChildImageForm(forms.ModelForm):
 class ChildVideoForm(forms.ModelForm):
     class Meta:
         model = ChildVideo
-        fields = ['title', 'video']
+        exclude = ['user', 'uploaded_at']  
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'form-control',
