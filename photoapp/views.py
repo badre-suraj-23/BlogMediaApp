@@ -261,10 +261,6 @@ def like_blog(request, pk):
     return HttpResponseRedirect(reverse('photoapp:view_blog', args=[pk]))
 
 
-# API_BASE_URL = "http://127.0.0.1:8000/api"
-
-# API_BASE_URL = "http://127.0.0.1:8000/api" 
-# API_BASE_URL="https://blogmedia.onrender.com/api"
 
 # ========================
 # Register View (Email-based)

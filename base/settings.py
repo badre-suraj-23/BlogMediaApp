@@ -160,6 +160,7 @@ SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = "Lax" if DEBUG else "None"
 CSRF_COOKIE_SECURE = not DEBUG
 
+
 # ==============================
 # CORS / CSRF
 # ==============================
@@ -167,6 +168,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:8000",
     "https://blogmedia.onrender.com",
+    "https://react-crypto-drab.vercel.app",   # 👈 React app (Vercel) domain add
 ]
 CORS_ALLOW_CREDENTIALS = True
 
@@ -174,7 +176,9 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:8000",
     "https://blogmedia.onrender.com",
+    "https://react-crypto-drab.vercel.app",   # 👈 React app (Vercel) domain add
 ]
+
 
 # ==============================
 # Login
