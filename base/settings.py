@@ -168,7 +168,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:8000",
     "https://blogmedia.onrender.com",
-    "https://react-crypto-drab.vercel.app",   # 👈 React app (Vercel) domain add
+    "https://react-crypto-drab.vercel.app",   
 ]
 CORS_ALLOW_CREDENTIALS = True
 
@@ -176,7 +176,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:8000",
     "https://blogmedia.onrender.com",
-    "https://react-crypto-drab.vercel.app",   # 👈 React app (Vercel) domain add
+    "https://react-crypto-drab.vercel.app",   
 ]
 
 
