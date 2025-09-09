@@ -1,5 +1,3 @@
-# base/settings.py
-
 from pathlib import Path
 import os
 from decouple import config
@@ -10,13 +8,6 @@ from datetime import timedelta
 # ==============================
 # Base directories & dotenv
 # ==============================
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
-API_BASE_URL = os.getenv("API_BASE_URL")
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
@@ -64,8 +55,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),   # 1 hour
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),   # 7 days
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": True,
@@ -116,7 +107,7 @@ DATABASES = {
     "default": dj_database_url.config(
         default=config("DATABASE_URL", default=f"sqlite:///{BASE_DIR/'db.sqlite3'}"),
         conn_max_age=600,
-        ssl_require=not DEBUG,  # Local में False, production में True
+        ssl_require=True,  # ✅ Always True for Neon / Render
     )
 }
 
@@ -160,7 +151,6 @@ SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = "Lax" if DEBUG else "None"
 CSRF_COOKIE_SECURE = not DEBUG
 
-
 # ==============================
 # CORS / CSRF
 # ==============================
@@ -168,7 +158,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:8000",
     "https://blogmedia.onrender.com",
-    "https://react-crypto-drab.vercel.app",   
+    "https://react-crypto-drab.vercel.app",
 ]
 CORS_ALLOW_CREDENTIALS = True
 
@@ -176,9 +166,8 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:8000",
     "https://blogmedia.onrender.com",
-    "https://react-crypto-drab.vercel.app",   
+    "https://react-crypto-drab.vercel.app",
 ]
-
 
 # ==============================
 # Login
@@ -192,9 +181,3 @@ if DEBUG:
     API_BASE_URL = "http://127.0.0.1:8000/api"
 else:
     API_BASE_URL = "https://blogmedia.onrender.com/api"
-from datetime import timedelta
-
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),   # default 5 min → 1 hour
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-}
